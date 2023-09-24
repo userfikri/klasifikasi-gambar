@@ -1,0 +1,37 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Menggunakan dataset MNIST yang berisi gambar-gambar angka
+mnist = keras.datasets.mnist
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+# Memisahkan angka ganjil (label 1) dan genap (label 0)
+train_odd_images = train_images[train_labels % 2 == 1]
+train_odd_labels = train_labels[train_labels % 2 == 1]
+
+# Normalisasi data
+train_odd_images = train_odd_images / 255.0
+
+# Membuat model jaringan saraf tiruan
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(2, activation='softmax')  # 2 kelas: ganjil dan genap
+])
+
+# Kompilasi model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Melatih model
+model.fit(train_odd_images, train_odd_labels, epochs=5)
+
+# Evaluasi model pada data pengujian (test set)
+test_odd_images = test_images[test_labels % 2 == 1]
+test_odd_labels = test_labels[test_labels % 2 == 1]
+test_odd_images = test_odd_images / 255.0
+
+test_loss, test_acc = model.evaluate(test_odd_images, test_odd_labels)
+print("Akurasi pengujian:", test_acc)
